@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { registerUser } from "../redux/thunks/authThunk";
 import PhoneInput from "react-phone-number-input";
-import 'react-phone-number-input/style.css';
+import "react-phone-number-input/style.css";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -21,20 +21,19 @@ const Register = () => {
     register,
     handleSubmit,
     formState: { errors },
-    getValues
+    getValues,
   } = useForm();
   const [phone, setPhone] = useState("");
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    data.phone_number = phone; 
+    data.phone_number = phone;
     dispatch(registerUser(data))
       .unwrap()
       .then(() => {
         toast.success("Registration successful! Please Verify your email");
-        navigate('/')
+        navigate("/");
       })
       .catch((error) => {
         console.log(error);
@@ -117,7 +116,9 @@ const Register = () => {
                 className="mt-1 border p-2"
               />
               {errors.phone_number && (
-                <p className="text-sm text-red-500">{errors.phone_number.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.phone_number.message}
+                </p>
               )}
             </div>
 
