@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { registerUser } from "../redux/thunks/authThunk";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
   const {
@@ -55,8 +55,8 @@ const Register = () => {
             Register
           </h2>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+        <CardContent >
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Label
                 htmlFor="name"
@@ -166,24 +166,33 @@ const Register = () => {
                   validate: (value) =>
                     value === getValues("password") || "Passwords do not match",
                 })}
-                className="mt-1"
+                className={`mt-1 w-full border ${
+                  errors.password ? "border-red-500 focus:ring-red-500" : ""
+                }`}
+                aria-invalid={errors.password ? "true" : "false"}
               />
               {errors.confirm_password && (
-                <p className="text-sm text-red-500">
+                <p className="mt-1 text-sm text-red-500">
                   {errors.confirm_password.message}
                 </p>
               )}
             </div>
-          </CardContent>
-          <CardFooter>
             <Button
               type="submit"
               className="w-full bg-blue-600 text-white hover:bg-blue-700"
             >
               Register
             </Button>
-          </CardFooter>
-        </form>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <p className="text-sm text-gray-500">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-500 hover:underline">
+              Login
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   Card,
   CardTitle,
   CardHeader,
+  CardDescription,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
@@ -12,10 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../redux/thunks/authThunk";
 import toast from "react-hot-toast";
+import { forgotPassword } from "../redux/thunks/authThunk";
 
-const Login = () => {
+const ForgotPassword = () => {
   const {
     register,
     handleSubmit,
@@ -26,17 +27,10 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const onSubmit = async (data) => {
-    const resultAction = await dispatch(loginUser(data));
-
     try {
-      if (loginUser.fulfilled.match(resultAction)) {
-        toast.success("Login successful");
-        navigate("/");
-      } else if (loginUser.rejected.match(resultAction)) {
-        const errorMessage = resultAction.payload?.error || "Login failed";
-        toast.error(errorMessage);
-        console.log("login error: ", resultAction.payload);
-      }
+      await dispatch(forgotPassword(data)).unwrap();
+      toast.success("Password reset email sent. Please check your inbox");
+      navigate("/");
     } catch (error) {
       toast.error("An unexpected error occured");
       console.error("Unexpected error during login: ", error);
@@ -48,8 +42,11 @@ const Login = () => {
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
           <CardTitle className="text-center text-xl font-semibold">
-            Login
+            Forgot Password?
           </CardTitle>
+          <CardDescription className="text-center font-semibold">
+            Please enter the registered email
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -62,7 +59,6 @@ const Login = () => {
                 id="email"
                 type="email"
                 placeholder="Enter your email"
-                autoComplete="username"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
@@ -82,54 +78,20 @@ const Login = () => {
               )}
             </div>
 
-            {/* Password Field */}
-            <div>
-              <Label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                })}
-                className={`mt-1 w-full border ${
-                  errors.password ? "border-red-500 focus:ring-red-500" : ""
-                }`}
-                aria-invalid={errors.password ? "true" : "false"}
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.password.message}
-                </p>
-              )}
-              <p className="text-center mt-4 text-sm">
-                <Link to={"/forgot-password"} className="text-blue-700">
-                  Forgot your password?{" "}
-                </Link>
-              </p>
-            </div>
-
             {/* Submit Button */}
             <Button
               type="submit"
               className="w-full bg-blue-600 text-white hover:bg-blue-700"
             >
-              Login
+              Send Password Reset Link
             </Button>
           </form>
         </CardContent>
         <CardFooter>
           <p className="text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-blue-500 hover:underline">
-              Sign up
+            Want to login?
+            <Link to="/login" className="text-blue-500 hover:underline">
+              Login
             </Link>
           </p>
         </CardFooter>
@@ -138,4 +100,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

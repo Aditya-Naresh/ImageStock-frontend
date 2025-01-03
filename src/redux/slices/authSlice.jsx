@@ -4,8 +4,8 @@ import { loginUser } from "../thunks/authThunk";
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
-    token: null,
+    user: localStorage.getItem("user") || null,
+    token: localStorage.getItem("token") || null,
     isLoading: true,
     error: null,
   },

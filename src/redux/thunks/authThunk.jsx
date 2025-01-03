@@ -44,3 +44,33 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (data, thunkAPI) => {
+    try {
+      const response = await axiosInstance.post("auth/forgot-password/", data);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data, thunkAPI) => {
+    try {
+      const response = await axiosInstance.patch("auth/set-password/", data);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        return thunkAPI.rejectWithValue(
+          error.response.data.detail || "Failed to reset password"
+        );
+      } else {
+        return thunkAPI.rejectWithValue("An unexpected error occured");
+      }
+    }
+  }
+);
