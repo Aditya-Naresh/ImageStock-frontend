@@ -44,12 +44,16 @@ export const uploadImages = createAsyncThunk(
 export const updateImageOrder = createAsyncThunk(
   "images/updateImageOrder",
   async (orderedImages, { rejectWithValue }) => {
+    console.log(orderedImages);
+    
     try {
       const response = await axiosInstance.patch("api/images/reorder/", {
         ordered_images: orderedImages,
       });
       return response.data;
     } catch (error) {
+      console.log(error);
+      
       return rejectWithValue(error.response.data);
     }
   }

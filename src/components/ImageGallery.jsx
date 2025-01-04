@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchImages } from "../redux/thunks/imageThunk";
+import { fetchImages, updateImageOrder } from "../redux/thunks/imageThunk";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
@@ -11,15 +11,70 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react"; // Import icons
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableItem } from "./SortableItem"; // Create this component
 
 const ImageGallery = () => {
   const dispatch = useDispatch();
   const { images, status } = useSelector((state) => state.images);
+  const [imageList, setImageList] = useState([]);
+  const [deleteImg, setDeleteImg] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     console.log("Dispatching fetchImages...");
     dispatch(fetchImages());
   }, [dispatch]);
+
+  useEffect(() => {
+    setImageList(images); // Sync Redux state with local state for drag-and-drop
+  }, [images]);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setImageList((prevImages) => {
+        const oldIndex = prevImages.findIndex((img) => img.id === active.id);
+        const newIndex = prevImages.findIndex((img) => img.id === over.id);
+
+        const newItems = arrayMove(prevImages, oldIndex, newIndex);
+        dispatch(
+          updateImageOrder(
+            newItems.map((img, index) => ({
+              id: img.id,
+              order: index,
+            }))
+          )
+        );
+        return newItems
+      });
+    }
+  };
+
+  const handleEdit = (id) => {
+    console.log("Edit image with id:", id);
+    // Implement edit functionality here
+  };
+
+  const handleDelete = (image) => {
+    console.log("Delete image with id:", image.id);
+    setDeleteImg(image);
+    setIsDeleteModalOpen(true);
+  };
 
   if (status === "loading") {
     return (
@@ -37,7 +92,6 @@ const ImageGallery = () => {
     );
   }
 
-  // If images array is empty, show a message
   if (images.length === 0) {
     return (
       <div className="p-6">
@@ -49,56 +103,31 @@ const ImageGallery = () => {
     );
   }
 
-  const handleEdit = (id) => {
-    console.log("Edit image with id:", id);
-    // Implement edit functionality here
-  };
-
-  const handleDelete = (id) => {
-    console.log("Delete image with id:", id);
-    // Implement delete functionality here
-  };
-
   return (
     <div className="p-6">
       <h1 className="text-3xl font-semibold mb-6">Image Gallery</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {images.map((image) => (
-          <Card key={image.id} className="shadow-lg rounded-lg">
-            <CardHeader>
-              <img
-                src={image.image}
-                alt={image.name}
-                className="w-full h-48 object-cover rounded-t-lg"
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={imageList.map((image) => image.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {imageList.map((image) => (
+              <SortableItem
+                key={image.id}
+                id={image.id}
+                image={image}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
               />
-            </CardHeader>
-            <CardContent>
-              <CardTitle>{image.title}</CardTitle>
-            </CardContent>
-            <CardFooter className="flex justify-between items-center">
-              <Button variant="outline" className="w-full">
-                View Image
-              </Button>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handleEdit(image.id)}
-                  className="p-2"
-                >
-                  <Edit size={16} />
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleDelete(image.id)}
-                  className="p-2"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 };
