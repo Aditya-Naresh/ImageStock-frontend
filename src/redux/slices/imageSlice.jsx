@@ -1,5 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { deleteImage, fetchImages, updateImage, updateImageOrder, uploadImages } from "../thunks/imageThunk";
+import {
+  deleteImage,
+  fetchImages,
+  updateImage,
+  updateImageOrder,
+  uploadImages,
+} from "../thunks/imageThunk";
 
 const imageSlice = createSlice({
   name: "images",
@@ -32,31 +38,34 @@ const imageSlice = createSlice({
       })
       .addCase(fetchImages.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload
-        
+        state.error = action.payload;
       })
       .addCase(updateImageOrder.fulfilled, (state, action) => {
         if (Array.isArray(action.payload)) {
-            state.images =action.payload.map(img => ({
-                ...img,
-                id: String(img.id)
-            }))
+          state.images = action.payload.map((img) => ({
+            ...img,
+            id: String(img.id),
+          }));
         }
       })
       .addCase(updateImage.fulfilled, (state, action) => {
-        const index = state.images.findIndex(img => img.id === String(action.payload.id))
-        if(index !== -1){
-            state.images[index] = {
-                ...action.payload,
-                id: String(action.payload.id)
-            }
-        }
+        console.log("Payload:", action.payload);
+        const updatedImages = state.images.map((img) =>
+          img.id === String(action.payload.id)
+            ? { ...img, ...action.payload, id: String(action.payload.id) }
+            : img
+        );
+
+        state.images = [...updatedImages];
+        state.status = "success"
       })
+
       .addCase(deleteImage.fulfilled, (state, action) => {
-        state.images = state.images.filter(img => img.id !== String(action.payload))
-      })
+        state.images = state.images.filter(
+          (img) => img.id !== String(action.payload)
+        );
+      });
   },
 });
 
-
-export default imageSlice.reducer
+export default imageSlice.reducer;

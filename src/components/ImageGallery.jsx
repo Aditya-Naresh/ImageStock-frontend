@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchImages, updateImageOrder } from "../redux/thunks/imageThunk";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react"; // Import icons
+  deleteImage,
+  fetchImages,
+  updateImage,
+  updateImageOrder,
+} from "../redux/thunks/imageThunk";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   DndContext,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
+  TouchSensor,
+  MouseSensor,
+  KeyboardSensor,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem"; // Create this component
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import toast from "react-hot-toast";
+import EditImageModal from "./EditImageModal";
 
 const ImageGallery = () => {
   const dispatch = useDispatch();
@@ -31,17 +35,25 @@ const ImageGallery = () => {
   const [imageList, setImageList] = useState([]);
   const [deleteImg, setDeleteImg] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const [editingImage, setEditingImage] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(null);
+  const [render, setRender] = useState("")
   useEffect(() => {
     console.log("Dispatching fetchImages...");
     dispatch(fetchImages());
-  }, [dispatch]);
+  }, [dispatch, render]);
 
   useEffect(() => {
-    setImageList(images); // Sync Redux state with local state for drag-and-drop
+    setImageList(images);
   }, [images]);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    // useSensor(PointerSensor),
+    useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -60,22 +72,57 @@ const ImageGallery = () => {
             }))
           )
         );
-        return newItems
+        return newItems;
       });
     }
   };
 
-  const handleEdit = (id) => {
-    console.log("Edit image with id:", id);
-    // Implement edit functionality here
+  const handleEdit = (image) => {
+    setEditingImage(image);
+    setIsEditModalOpen(true);
   };
 
+  const handleSaveEdit = ({ title, newImage }) => {
+    if (editingImage) {
+      const formData = new FormData();
+      formData.append("title", title);
+      if (newImage) {
+        formData.append("image", newImage);
+      }
+      dispatch(updateImage({ id: editingImage.id, formData }))
+        .unwrap()
+        .then(() => {
+          toast.success("Image updated successfully");
+          setRender(`${editingImage.id} ${title} ${newImage}`)
+          setIsEditModalOpen(false);
+          setEditingImage(null);
+        })
+        .catch((error) => {
+          toast.error("Failed to update image");
+        });
+    }
+  };
   const handleDelete = (image) => {
     console.log("Delete image with id:", image.id);
     setDeleteImg(image);
     setIsDeleteModalOpen(true);
   };
 
+  const confirmDelete = () => {
+    if (deleteImg) {
+      dispatch(deleteImage(deleteImg.id))
+        .unwrap()
+        .then(() => {
+          toast.success("Image deleted successfully");
+          setRender(`${deleteImage.id} deleted`)
+          setIsDeleteModalOpen(false);
+          setDeleteImg(null);
+        })
+        .catch(() => {
+          toast.error("Failed to delete image");
+        });
+    }
+  };
   if (status === "loading") {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -128,6 +175,26 @@ const ImageGallery = () => {
           </div>
         </SortableContext>
       </DndContext>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        closeModal={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteImg(null);
+        }}
+        onConfirm={confirmDelete}
+        imageName={deleteImg?.title}
+      />
+
+      <EditImageModal
+        isOpen={isEditModalOpen}
+        closeModal={() => {
+          setIsEditModalOpen(false);
+          setEditingImage(null);
+        }}
+        image={editingImage}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };

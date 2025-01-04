@@ -3,7 +3,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-const DeleteConfirmationModal = ({ isOpen, closeModal, onConfirm, image }) => {
+const DeleteConfirmationModal = ({ isOpen, closeModal, onConfirm, imageName }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const DeleteConfirmationModal = ({ isOpen, closeModal, onConfirm, image }) => {
           </button>
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete <strong>{image.title}</strong>? This action cannot be undone.
+            Are you sure you want to delete <strong>{imageName}</strong>? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-4 mt-6">

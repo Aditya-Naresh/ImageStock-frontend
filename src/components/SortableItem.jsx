@@ -45,15 +45,19 @@ export const SortableItem = ({ id, image, handleEdit, handleDelete }) => {
         <div className="flex space-x-2">
           <Button
             variant="outline"
-            onClick={() => handleEdit(image.id)}
+            onClick={() => handleEdit(image)}
             className="p-2"
           >
             <Edit size={16} />
           </Button>
           <Button
             variant="outline"
-            onClick={() => handleDelete(image)}
+            onClick={(e) => {
+              e.stopPropagation(); 
+              handleDelete(image);
+            }}
             className="p-2"
+            data-no-dnd
           >
             <Trash2 size={16} />
           </Button>
