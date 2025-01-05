@@ -1,1 +1,1 @@
-export const SERVER = "https://aditya-imagestock-backend.onrender.com"
+export const SERVER = "https://imagestock-backend.onrender.com/"
