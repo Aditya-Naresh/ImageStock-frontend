@@ -40,8 +40,11 @@ export const SortableItem = ({ id, image, handleEdit, handleDelete }) => {
       </CardContent>
       <CardFooter className="flex justify-between items-center">
         <Button variant="outline" className="w-full">
-          View Image
+          <a href={image.image} target="_blank" rel="noopener noreferrer">
+            View Image
+          </a>
         </Button>
+
         <div className="flex space-x-2">
           <Button
             variant="outline"
@@ -53,7 +56,7 @@ export const SortableItem = ({ id, image, handleEdit, handleDelete }) => {
           <Button
             variant="outline"
             onClick={(e) => {
-              e.stopPropagation(); 
+              e.stopPropagation();
               handleDelete(image);
             }}
             className="p-2"
