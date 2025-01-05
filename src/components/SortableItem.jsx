@@ -39,11 +39,14 @@ export const SortableItem = ({ id, image, handleEdit, handleDelete }) => {
         <CardTitle>{image.title}</CardTitle>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <Button variant="outline" className="w-full">
-          <a href={image.image} target="_blank" rel="noopener noreferrer">
-            View Image
-          </a>
-        </Button>
+      <Button 
+  variant="outline" 
+  className="w-full"
+  onClick={() => window.open(image.image, "_blank", "noopener noreferrer")}
+>
+  View Image
+</Button>
+
 
         <div className="flex space-x-2">
           <Button
