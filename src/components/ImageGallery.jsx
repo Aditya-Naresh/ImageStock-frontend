@@ -37,7 +37,7 @@ const ImageGallery = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingImage, setEditingImage] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(null);
-  const [render, setRender] = useState("")
+  const [render, setRender] = useState("");
   useEffect(() => {
     console.log("Dispatching fetchImages...");
     dispatch(fetchImages());
@@ -49,7 +49,7 @@ const ImageGallery = () => {
 
   const sensors = useSensors(
     // useSensor(PointerSensor),
-    useSensor(TouchSensor),
+    useSensor(TouchSensor, { activationConstraint: { distance: 10 } }),
     useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -94,7 +94,7 @@ const ImageGallery = () => {
         .unwrap()
         .then(() => {
           toast.success("Image updated successfully");
-          setRender(`${editingImage.id} ${title} ${newImage}`)
+          setRender(`${editingImage.id} ${title} ${newImage}`);
           setIsEditModalOpen(false);
           setEditingImage(null);
         })
@@ -115,7 +115,7 @@ const ImageGallery = () => {
         .unwrap()
         .then(() => {
           toast.success("Image deleted successfully");
-          setRender(`${deleteImage.id} deleted`)
+          setRender(`${deleteImage.id} deleted`);
           setIsDeleteModalOpen(false);
           setDeleteImg(null);
         })
