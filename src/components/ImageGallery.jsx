@@ -49,6 +49,7 @@ const ImageGallery = () => {
 
   const sensors = useSensors(
     // useSensor(PointerSensor),
+    useSensor(TouchSensor),
     useSensor(MouseSensor, { activationConstraint: { distance: 10 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
