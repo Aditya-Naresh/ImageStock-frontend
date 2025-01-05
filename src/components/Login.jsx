@@ -33,7 +33,7 @@ const Login = () => {
         toast.success("Login successful");
         navigate("/");
       } else if (loginUser.rejected.match(resultAction)) {
-        const errorMessage = resultAction.payload?.error || "Login failed";
+        const errorMessage = resultAction.payload?.message || "Login failed";
         toast.error(errorMessage);
         console.log("login error: ", resultAction.payload);
       }
